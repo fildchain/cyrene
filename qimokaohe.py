@@ -7,6 +7,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, r2_score
 import warnings
+
 warnings.filterwarnings('ignore')
 
 # 设置中文字体
@@ -17,6 +18,8 @@ plt.rcParams['axes.unicode_minus'] = False
 st.set_page_config(page_title="学生成绩分析平台", page_icon="🎓", layout="wide")
 
 # 标题和介绍
+col_title1, col_title2 = st.columns([1,2])
+with col_title1:
 st.title("🎓 学生成绩分析与预测平台")
 st.markdown("""
 本平台提供以下功能：
@@ -27,7 +30,7 @@ st.markdown("""
 
 # 图片URL
 PASS_IMAGE_URL = "https://bpic.588ku.com/art_origin_min_pic/20/09/29/901ed89ba30fc832aea90b85ef34ff4d.jpg"
-FAIL_IMAGE_URL = "https://pic.nximg.cn/file/20200914/24880487_100739959000_2.jpg"
+FAIL_IMAGE_URL = "https://pic.616pic.com/ys_img/00/05/01/w0Tt97bywo.jpg"
 
 # 加载数据
 @st.cache_data
