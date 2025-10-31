@@ -18,10 +18,10 @@ plt.rcParams['axes.unicode_minus'] = False
 st.set_page_config(page_title="学生成绩分析平台", page_icon="🎓", layout="wide")
 
 # 标题和介绍
-col_title1, col_title2 = st.columns([1,2])
+col_title1, col_title2 = st.columns([1,1])
 with col_title1:
-    st.title("🎓 学生成绩分析与预测平台")
-    st.markdown("""
+   st.title("🎓 学生成绩分析与预测平台")
+   st.markdown("""
 本平台提供以下功能：
 - **数据可视化**：多维度展示学生学业表现
 - **成绩预测**：基于机器学习模型预测期末成绩
@@ -118,6 +118,64 @@ if page == "项目介绍":
         """)
     
     with col2:
+                # 在右侧添加相册功能
+        st.markdown("---")
+        st.subheader("界面相册")
+        
+        # 相册图片URL - 这里需要替换为你实际保存的图片路径
+        ALBUM_IMAGES = [
+            "1.png",  # 替换为你的第一张图片路径
+            "2.png",  # 替换为你的第二张图片路径
+            "3.png"   # 替换为你的第三张图片路径
+        ]
+        
+        ALBUM_CAPTIONS = [
+            "项目介绍",
+            "数据可视化", 
+            "成绩预测"
+        ]
+    
+        # 初始化相册索引
+        if 'current_album_index' not in st.session_state:
+            st.session_state.current_album_index = 0
+        
+        current_index = st.session_state.current_album_index
+        
+        # 显示当前图片
+        try:
+            st.image(
+                ALBUM_IMAGES[current_index],
+                caption=ALBUM_CAPTIONS[current_index],
+                use_column_width=True
+            )
+        except Exception as e:
+            st.warning(f"图片加载失败: {e}")
+            st.info("请确保图片文件存在于指定路径")
+        
+        # 导航按钮
+        col_prev, col_indicator, col_next = st.columns([1, 1, 1])
+        
+        with col_prev:
+            if st.button("⬅️ 上一张", key="album_prev", use_container_width=True):
+                st.session_state.current_album_index = (current_index - 1) % len(ALBUM_IMAGES)
+                st.rerun()
+        
+        with col_indicator:
+            st.markdown(f"**{current_index + 1} / {len(ALBUM_IMAGES)}**")
+        
+        with col_next:
+            if st.button("下一张 ➡️", key="album_next", use_container_width=True):
+                st.session_state.current_album_index = (current_index + 1) % len(ALBUM_IMAGES)
+                st.rerun()
+        
+        # 图片指示器
+        dots = ""
+        for i in range(len(ALBUM_IMAGES)):
+            if i == current_index:
+                dots += "🔵"
+            else:
+                dots += "⚪"
+        st.markdown(f"<div style='text-align: center; font-size: 20px;'>{dots}</div>", unsafe_allow_html=True)
         st.subheader("🔮 预测功能")
         st.markdown("""
         - 输入学生信息
@@ -133,6 +191,8 @@ if page == "项目介绍":
             st.image(PASS_IMAGE_URL, caption="恭喜及格！🎉", use_column_width=True)
         with col_img2:
             st.image(FAIL_IMAGE_URL, caption="继续加油！💪", use_column_width=True)
+        
+
         
         # 显示数据预览
         st.subheader("📋 数据预览")
@@ -312,39 +372,28 @@ elif page == "数据可视化":
             big_data_df = df[df['专业'] == '大数据管理']
             
             if not big_data_df.empty:
-                # 期末成绩堆叠面积图
+                # 期末成绩直方图
                 fig, ax = plt.subplots(figsize=(12, 6))
                 
-                # 创建成绩区间数据
-                big_data_df['成绩区间'] = pd.cut(big_data_df['final_score'], 
-                                               bins=[0, 60, 70, 80, 90, 100],
-                                               labels=['不及格(0-60)', '及格(60-70)', '中等(70-80)', '良好(80-90)', '优秀(90-100)'])
+                # 创建直方图
+                n, bins, patches = ax.hist(big_data_df['final_score'], bins=10, 
+                                          color='#4ECDC4', alpha=0.7, edgecolor='black')
                 
-                # 按学号排序并计算累计人数
-                big_data_sorted = big_data_df.sort_values('学号')
-                score_ranges = ['不及格(0-60)', '及格(60-70)', '中等(70-80)', '良好(80-90)', '优秀(90-100)']
-                
-                # 创建堆叠面积数据
-                cumulative = np.zeros(len(big_data_sorted))
-                colors = ['#FF6B6B', '#FFE66D', '#4ECDC4', '#45B7D1', '#96CEB4']
-                
-                for i, score_range in enumerate(score_ranges):
-                    mask = big_data_sorted['成绩区间'] == score_range
-                    counts = mask.astype(int)
-                    ax.fill_between(range(len(big_data_sorted)), cumulative, cumulative + counts,
-                                  label=score_range, color=colors[i], alpha=0.7)
-                    cumulative += counts
-                
-                ax.set_xlabel('学生序号（按学号排序）')
-                ax.set_ylabel('累计人数')
-                ax.set_title('大数据管理专业期末成绩分布（堆叠面积图）')
-                ax.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
+                ax.set_xlabel('期末成绩')
+                ax.set_ylabel('学生人数')
+                ax.set_title('大数据管理专业期末成绩分布（直方图）')
                 ax.grid(True, alpha=0.3)
                 
-                # 添加总人数线
-                ax.axhline(y=len(big_data_sorted), color='red', linestyle='--', alpha=0.7, 
-                          label=f'总人数: {len(big_data_sorted)}')
-                ax.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
+                # 在柱子上显示数值
+                for i, (count, bin_edge) in enumerate(zip(n, bins)):
+                    if count > 0:
+                        ax.text(bin_edge + (bins[1] - bins[0])/2, count + 0.1, 
+                               f'{int(count)}', ha='center', va='bottom', fontsize=9)
+                
+                # 添加及格线
+                ax.axvline(x=60, color='red', linestyle='--', linewidth=2, 
+                          label='及格线 (60分)', alpha=0.8)
+                ax.legend()
                 
                 plt.tight_layout()
                 st.pyplot(fig)
@@ -384,6 +433,27 @@ elif page == "数据可视化":
                         f"{avg_study:.1f}小时",
                         delta=f"{(avg_study - df['weekly_study_hours'].mean()):.1f}小时 vs 平均"
                     )
+                
+                # 成绩分布统计
+                st.subheader("📈 成绩分布详情")
+                col_stats1, col_stats2 = st.columns(2)
+                
+                with col_stats1:
+                    st.markdown("**成绩分段统计:**")
+                    score_bins = [0, 60, 70, 80, 90, 100]
+                    score_labels = ['不及格(<60)', '及格(60-70)', '中等(70-80)', '良好(80-90)', '优秀(90-100)']
+                    score_dist = pd.cut(big_data_df['final_score'], bins=score_bins, labels=score_labels).value_counts().sort_index()
+                    
+                    for score_range, count in score_dist.items():
+                        percentage = (count / len(big_data_df)) * 100
+                        st.write(f"- {score_range}: {count}人 ({percentage:.1f}%)")
+                
+                with col_stats2:
+                    st.markdown("**统计指标:**")
+                    st.write(f"- 最高分: {big_data_df['final_score'].max():.1f}分")
+                    st.write(f"- 最低分: {big_data_df['final_score'].min():.1f}分")
+                    st.write(f"- 中位数: {big_data_df['final_score'].median():.1f}分")
+                    st.write(f"- 标准差: {big_data_df['final_score'].std():.1f}分")
                 
             else:
                 st.warning("数据中暂无大数据管理专业的学生数据")
@@ -429,14 +499,6 @@ elif page == "数据可视化":
                 # 详细数据统计
                 st.subheader("📋 详细数据统计")
                 
-                # 成绩分布统计
-                if '成绩区间' in big_data_df.columns:
-                    score_dist = big_data_df['成绩区间'].value_counts().sort_index()
-                    st.write("**成绩分布:**")
-                    for score_range, count in score_dist.items():
-                        percentage = (count / len(big_data_df)) * 100
-                        st.write(f"- {score_range}: {count}人 ({percentage:.1f}%)")
-                
                 # 学习时间分段统计
                 st.write("**学习时间分段:**")
                 study_hours_bins = pd.cut(big_data_df['weekly_study_hours'], 
@@ -456,6 +518,13 @@ elif page == "数据可视化":
                 for att_range, count in attendance_dist.items():
                     percentage = (count / len(big_data_df)) * 100
                     st.write(f"- {att_range}: {count}人 ({percentage:.1f}%)")
+                
+                # 相关性分析
+                st.write("**学习指标相关性:**")
+                corr_study_score = big_data_df['weekly_study_hours'].corr(big_data_df['final_score'])
+                corr_attendance_score = big_data_df['attendance_rate'].corr(big_data_df['final_score'])
+                st.write(f"- 学习时间 vs 成绩: {corr_study_score:.3f}")
+                st.write(f"- 出勤率 vs 成绩: {corr_attendance_score:.3f}")
                 
             else:
                 st.info("等待大数据管理专业数据...")
@@ -563,9 +632,10 @@ else:  # 成绩预测页面
                         - 寻求老师或同学帮助
                         - 制定详细的学习计划
                         """)
-                    with col2:
+                
+                with col2:
                     # 显示影响因素
-                         st.markdown("### 🔍 影响因素分析")
+                    st.markdown("### 🔍 影响因素分析")
                     
                     # 计算特征重要性（简化版）
                     factors = {
@@ -639,4 +709,3 @@ st.markdown("🎓 学生成绩分析平台 | 基于Streamlit开发")
 if st.sidebar.checkbox("显示原始数据"):
     st.sidebar.subheader("原始数据")
     st.sidebar.dataframe(df, use_container_width=True)
-
