@@ -345,58 +345,7 @@ def main():
     
     # 保存模型
     predictor.save_model()
-    
-    # 示例预测
-    print("\n" + "=" * 50)
-    print("示例预测")
-    print("=" * 50)
-    
-    # 创建预测模板
-    template = predictor.create_prediction_template()
-    
-    # 示例1: 优秀学生
-    excellent_student = template.copy()
-    excellent_student.update({
-        '性别': 1,  # 女
-        'weekly_study_hours': 35.0,
-        'attendance_rate': 0.95,
-        'midterm_score': 92.0,
-        'homework_completion_rate': 0.98,
-        '专业_人工智能': 1  # 假设是人工智能专业
-    })
-    
-    predicted_score = predictor.predict_single(excellent_student)
-    if predicted_score is not None:
-        print(f"\n优秀学生预测结果:")
-        print(f"- 性别: {'女' if excellent_student['性别'] == 1 else '男'}")
-        print(f"- 每周学习时长: {excellent_student['weekly_study_hours']} 小时")
-        print(f"- 出勤率: {excellent_student['attendance_rate']:.1%}")
-        print(f"- 期中成绩: {excellent_student['midterm_score']} 分")
-        print(f"- 作业完成率: {excellent_student['homework_completion_rate']:.1%}")
-        print(f"- 预测期末成绩: {predicted_score:.1f} 分")
-        print(f"- 预测结果: {'及格' if predicted_score >= 60 else '不及格'}")
-    
-    # 示例2: 普通学生
-    average_student = template.copy()
-    average_student.update({
-        '性别': 0,  # 男
-        'weekly_study_hours': 20.0,
-        'attendance_rate': 0.80,
-        'midterm_score': 75.0,
-        'homework_completion_rate': 0.85,
-        '专业_工商管理': 1  # 假设是工商管理专业
-    })
-    
-    predicted_score2 = predictor.predict_single(average_student)
-    if predicted_score2 is not None:
-        print(f"\n普通学生预测结果:")
-        print(f"- 性别: {'女' if average_student['性别'] == 1 else '男'}")
-        print(f"- 每周学习时长: {average_student['weekly_study_hours']} 小时")
-        print(f"- 出勤率: {average_student['attendance_rate']:.1%}")
-        print(f"- 期中成绩: {average_student['midterm_score']} 分")
-        print(f"- 作业完成率: {average_student['homework_completion_rate']:.1%}")
-        print(f"- 预测期末成绩: {predicted_score2:.1f} 分")
-        print(f"- 预测结果: {'及格' if predicted_score2 >= 60 else '不及格'}")
 
+   
 if __name__ == "__main__":
     main()
